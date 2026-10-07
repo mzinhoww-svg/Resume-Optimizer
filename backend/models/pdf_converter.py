@@ -1,4 +1,5 @@
 import os
+import re
 import pymupdf as fitz
 import markdown
 from llm import generate_optimized_resume
@@ -50,8 +51,14 @@ def markdown_to_pdf(input_md, output_pdf, css_path=None):
     else:
         md_content = input_md
 
+    # Python-Markdown only starts a list after a blank line; LLMs often omit it
+    md_content = re.sub(r'(?m)^([^\s\-*+\d][^\n]*)\n(?=[-*+] )', r'\1\n\n', md_content)
+
     md = markdown.Markdown(extensions=['extra', 'codehilite', 'toc'])
     html_content = md.convert(md_content)
+    # Markdown links left inside raw HTML blocks (e.g. a centered contact <p>) are not converted
+    html_content = re.sub(r'\[([^\]]+)\]\((https?://[^)\s]+|mailto:[^)\s]+)\)',
+                          r'<a href="\2">\1</a>', html_content)
 
     default_css = """
     @page {
