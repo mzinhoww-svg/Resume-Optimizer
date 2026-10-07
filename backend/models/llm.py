@@ -1,8 +1,12 @@
 import os
-from groq import Groq
+from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
+
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+# Override with OPENROUTER_MODEL in the environment or in backend/.env
+DEFAULT_MODEL = "meta-llama/llama-3.3-70b-instruct"
 
 PROMPT_TEMPLATE = """
 You are a professional resume optimizer specializing in creating ATS-friendly Markdown resumes. I have a resume in Markdown and a job description. Optimize the resume to align precisely with the job requirements and return a well-structured Markdown document with clearly defined sections.
@@ -51,7 +55,7 @@ Provide the optimized resume in Markdown format with the structure and guideline
 
 def generate_optimized_resume(md_resume: str, job_description: str) -> str:
     """
-    Calls the Groq API to generate an optimized resume in Markdown format.
+    Calls the OpenRouter API to generate an optimized resume in Markdown format.
 
     Args:
         md_resume (str): The user's resume in Markdown format.
@@ -60,11 +64,12 @@ def generate_optimized_resume(md_resume: str, job_description: str) -> str:
     Returns:
         str: The optimized resume in Markdown format.
     """
-    api_key = os.getenv("GROQ_API_KEY")
+    api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
-        raise ValueError("GROQ_API_KEY is not set in environment variables.")
+        raise ValueError("OPENROUTER_API_KEY is not set in environment variables.")
 
-    client = Groq(api_key=api_key)
+    client = OpenAI(api_key=api_key, base_url=OPENROUTER_BASE_URL)
+    model = os.getenv("OPENROUTER_MODEL", DEFAULT_MODEL)
 
     try:
         response = client.chat.completions.create(
@@ -72,13 +77,13 @@ def generate_optimized_resume(md_resume: str, job_description: str) -> str:
                 {"role": "system", "content": "You are a highly skilled Markdown resume optimizer."},
                 {"role": "user", "content": PROMPT_TEMPLATE.format(md_resume=md_resume, job_description=job_description)},
             ],
-            model="llama-3.3-70b-versatile",
+            model=model,
         )
 
         return response.choices[0].message.content.strip()
 
     except Exception as e:
-        raise RuntimeError("An error occurred while processing your request") from e
+        raise RuntimeError(f"LLM request failed: {e}") from e
 
 if __name__ == "__main__":
     sample_md_resume = """
