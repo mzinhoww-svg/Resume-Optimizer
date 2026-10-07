@@ -63,25 +63,39 @@ def markdown_to_pdf(input_md, output_pdf, css_path=None):
     default_css = """
     @page {
         size: A4;
-        margin: 1.5cm;
+        margin: 1.2cm 1.4cm;
         @bottom-right {
             content: "Page " counter(page) " of " counter(pages);
-            font-size: 9pt;
+            font-size: 8pt;
             color: #666;
         }
     }
     body {
         font-family: "Helvetica", "Arial", sans-serif;
-        font-size: 10pt;
-        line-height: 1.5;
+        font-size: 9.5pt;
+        line-height: 1.35;
         color: #333;
     }
     h1 {
-        font-size: 22pt;
+        font-size: 20pt;
         font-weight: bold;
         color: #1a2a44;
         border-bottom: 2px solid #1a2a44;
+        margin: 0 0 4pt;
     }
+    h2 {
+        font-size: 12pt;
+        color: #1a2a44;
+        border-bottom: 1px solid #1a2a44;
+        margin: 9pt 0 3pt;
+    }
+    h3 {
+        font-size: 10pt;
+        margin: 6pt 0 0;
+    }
+    p { margin: 2pt 0; }
+    ul { margin: 2pt 0 2pt; padding-left: 16pt; }
+    li { margin: 0; }
     """
 
     if css_path and os.path.isfile(css_path):
