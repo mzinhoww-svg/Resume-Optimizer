@@ -1,14 +1,11 @@
 import os
-import fitz  
+import pymupdf as fitz
 import markdown
 from llm import generate_optimized_resume
 from weasyprint import HTML 
 
-# Set environment path for dependencies
-os.environ["PATH"] += os.pathsep + r"C:\msys64\mingw64\bin"
-
-# Define base directories
-BASE_DIR = r"V:\Projects\Resume-Optimizer\backend"
+# Define base directories (relative to this file, so it works on any OS)
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
 OUTPUT_DIR = os.path.join(BASE_DIR, "outputs")
 
@@ -104,7 +101,8 @@ def markdown_to_pdf(input_md, output_pdf, css_path=None):
         print(f"Converted Markdown to PDF: {output_pdf}")
     except Exception as e:
         print(f"Error converting Markdown to PDF: {e}")
-        
+        raise
+
 
 if __name__ == "__main__":
     input_pdf_path = os.path.join(UPLOADS_DIR, "resume.pdf")
