@@ -1,0 +1,6 @@
+
+CANDIDATE INSTRUCTIONS (mandatory). Goal: a strong, ATS-parseable resume in English (Lever, Greenhouse and similar).
+1. Write the ENTIRE resume in English. Languages: Portuguese (native), English (fluent), Spanish (fluent).
+2. ATS FORMAT: use exactly these section headings, in this order, as plain "## " headings with no bold: Professional Summary, Core Skills, Professional Experience, Education, Certifications and Languages. Name as "# " heading, then ONE plain contact line (email | phone | LinkedIn | city). No HTML, tables, columns, icons or bold in headings. Each role as "### Job Title | Company" (no bold), then one line "Month YYYY - Month YYYY | City, Country" ("Present" for current). Every role MUST have a date line; a role without dates in the master (Rivool) becomes a bullet under the Professional Summary, not a separate role. Plain "-" bullets, one sentence each, action verb first.
+3. KEYWORDS: naturally include the job's exact terms where the master supports them, and build a Core Skills list of 12-16 short items mirroring the job's vocabulary.
+4. TRUTH: use ONLY facts in the master resume. Job requirements guide emphasis and wording; they are not facts about the candidate. Do not invent metrics, team sizes, dates, partners or experience. Reverse-chronological order. Two pages maximum.

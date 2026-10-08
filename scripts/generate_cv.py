@@ -1,6 +1,7 @@
 """Gera um PDF do curriculo adaptado a uma vaga a partir de cv/master.md.
 
-Uso: .venv/bin/python scripts/generate_cv.py VAGA.txt NOME_DA_SAIDA
+Uso: .venv/bin/python scripts/generate_cv.py VAGA.txt NOME_DA_SAIDA [TEMPLATE_ATS]
+TEMPLATE_ATS (opcional): arquivo de instrucoes anexado a vaga, ex. scripts/ats_templates/inhire_ptbr.txt
 Saida: cv/out/NOME_DA_SAIDA.pdf (e .md). Requer OPENROUTER_API_KEY; o modelo vem de OPENROUTER_MODEL.
 """
 import os
@@ -31,13 +32,17 @@ def count_pages(pdf_path):
 
 
 def main():
-    if len(sys.argv) != 3:
+    if len(sys.argv) not in (3, 4):
         sys.exit(__doc__)
     job_path, name = sys.argv[1], sys.argv[2]
+    template = sys.argv[3] if len(sys.argv) == 4 else None
     with open(os.path.join(ROOT, "cv", "master.md"), encoding="utf-8") as f:
         master = f.read()
     with open(job_path, encoding="utf-8") as f:
         job = f.read()
+    if template:
+        with open(template, encoding="utf-8") as f:
+            job += f.read()
 
     out_dir = os.path.join(ROOT, "cv", "out")
     os.makedirs(out_dir, exist_ok=True)

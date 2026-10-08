@@ -81,6 +81,8 @@ def generate_optimized_resume(md_resume: str, job_description: str) -> str:
                 {"role": "user", "content": PROMPT_TEMPLATE.format(md_resume=md_resume, job_description=job_description)},
             ],
             model=model,
+            # A resume is a few thousand tokens; without a cap the request reserves the model's maximum
+            max_tokens=int(os.getenv("OPENROUTER_MAX_TOKENS", "8000")),
         )
 
         return response.choices[0].message.content.strip()
