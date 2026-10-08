@@ -14,19 +14,22 @@ You are a professional resume optimizer specializing in creating ATS-friendly Ma
 ### Optimization Guidelines:
 1. **Structure**: Output the resume in Markdown with the following sections in this order (if applicable based on input):
      Name should be top of the resume with larger font in center.
-     After name give  email, phone, LinkedIn (if available).
+     After name give email, phone, LinkedIn (if available) on a single plain line separated by " | " (plain text, no HTML tags).
    - **Professional Summary**: A concise 2-3 sentence summary tailored to the job description.
    - **Skills**: A bulleted list of relevant skills (technical and soft) matching the job description.
    - **Professional Experience**: Jobs in reverse chronological order with role, company, dates, and bullet points for achievements (quantify where possible, e.g., "Increased efficiency by 30%").
    - **Education**: Degree, institution, and graduation year.
    - **Projects** (optional): Relevant projects with brief descriptions and outcomes.
    - **Certifications** (optional): Relevant certifications with issuer and date.
-   - Exclude irrelevant sections or content not related to the job.
+   - Write the resume in the same language as the input resume (translate headings and any English leftovers, such as "Languages" or "Certifications", into that language).
 
-2. **Relevance**:
+2. **Relevance** (truthfulness comes first):
+   - Use ONLY facts present in the input resume. The job description tells you which keywords to emphasize and how to order the content; its requirements are NOT facts about the candidate. Never claim experience, skills, tools or employers that the resume does not mention.
    - Prioritize skills, experiences, and achievements that match the job description.
    - Rearrange or rewrite bullet points to emphasize keywords and phrases from the job description.
-   - Remove or minimize irrelevant skills, experiences, or sections that don’t align with the job.
+   - NEVER omit a job or position that appears in the input resume. Include every employer and role with its dates. Give the most relevant roles 4-6 bullets and shorten less relevant ones to 1-2 bullets, but never drop them.
+   - Keep every concrete detail the input gives about the most relevant roles; do not summarize them into generic statements.
+   - Use past tense for ended roles and present tense only for the current role. Proofread verb conjugations.
 
 3. **Formatting**:
    - Use simple Markdown syntax (e.g., `#` for headings, `-` for bullet points) to ensure ATS compatibility.
@@ -35,8 +38,8 @@ You are a professional resume optimizer specializing in creating ATS-friendly Ma
    - Use bold (`**`) sparingly for emphasis (e.g., company names or key achievements).
 
 4. **Quantify Achievements**:
-   - Where possible, add measurable outcomes (e.g., "Developed a tool that reduced processing time by 25%").
-   - If no metrics are provided in the input, infer reasonable ones based on context or rephrase for impact.
+   - Use only the numbers and measurable outcomes that already appear in the input resume.
+   - If the input gives no metrics, do NOT invent any; rephrase for impact instead.
 
 5. **Output Requirement**:
    - Return **only the optimized Markdown resume**—no additional text, comments, or explanations.
@@ -78,6 +81,8 @@ def generate_optimized_resume(md_resume: str, job_description: str) -> str:
                 {"role": "user", "content": PROMPT_TEMPLATE.format(md_resume=md_resume, job_description=job_description)},
             ],
             model=model,
+            # A resume is a few thousand tokens; without a cap the request reserves the model's maximum
+            max_tokens=int(os.getenv("OPENROUTER_MAX_TOKENS", "8000")),
         )
 
         return response.choices[0].message.content.strip()

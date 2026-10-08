@@ -15,3 +15,5 @@ backend/uploads/
 
 # Python virtual environment files
 .venv/
+# Curriculo-base e PDFs gerados (dados pessoais)
+cv/
