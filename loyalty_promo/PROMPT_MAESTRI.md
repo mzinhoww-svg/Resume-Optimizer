@@ -79,6 +79,31 @@ Adicione agentes por coletor, de dados/QA e de testes quando acelerar a entrega.
   consulta o contador antes de cada chamada paga e **interrompe a chamada** ao atingir o teto do bloco de autorizações.
   Resumo de gasto em STATUS.md a cada fase.
 
+## ROBUSTEZ DA COLETA E DO PIPELINE
+- **Fontes que quebram:** cada coletor tem teste de contrato (fixture de HTML/mensagem real). Se uma fonte ficar X dias
+  (padrão 7) sem itens novos ou a taxa de extração cair, gera alerta e aparece como `source_health` no dashboard.
+- **Idempotência:** migrações versionadas (Alembic), chaves únicas e jobs reexecutáveis; reprocessar o backfill não
+  duplica nem sobrescreve registros.
+- **Privacidade:** de Telegram e redes guardar só o conteúdo da oferta e a URL; nunca nomes ou identificadores de pessoas.
+
+## MODELO: OPERAÇÃO E VALOR PRÁTICO
+- **Lead time do alerta:** medir com quantos dias de antecedência a previsão acerta e a taxa de falsos alarmes. O limiar
+  de alerta é calibrado por custo do falso alarme e documentado.
+- **Mudança de regime:** detectar quebra de cadência por par (por exemplo, teste de mudança no intervalo médio) e reduzir
+  o peso do histórico antigo quando ocorrer; registrar a data da quebra.
+- **Reprodutibilidade:** cada treino grava em `model_run` a versão do dataset, das features, os hiperparâmetros, as
+  métricas e o hash do código, para explicar qualquer previsão passada.
+- **Calendário:** tabela `calendar_event` (Black Friday, aniversários dos programas, campanhas de varejo e de companhias)
+  alimenta as features de sazonalidade.
+- **Explicação no dashboard:** cada item da lista mostra por que está lá (dias desde a última oferta, mês, ofertas recentes
+  de pares irmãos) e a faixa de confiança.
+
+## GOVERNANÇA DOS AGENTES
+- **Registro de ações externas:** `docs/ACTIONS.md` lista tudo o que os agentes fizeram em sistemas fora do repositório
+  (servidor criado, deploy, escrita em banco remoto, chamada paga relevante), com data e responsável.
+- **Parada de emergência:** se existir o arquivo `STOP` na raiz do repositório, o orquestrador termina as tarefas em curso,
+  commita o estado, registra em STATUS.md e não inicia nada novo. Verificar o arquivo no início de cada ciclo.
+
 ## FASES
 1. Setup: repo GitHub, Docker Compose local, schema aplicado, CI de testes.
 2. **Portão de viabilidade de dados** (obrigatório): backfill de Passageiro de Primeira, Melhores Cartões,
@@ -137,6 +162,7 @@ Ninguém espera aprovação humana entre tarefas ou fases. O orquestrador conduz
 - Modelo campeão × desafiante rodado e decidido (o baseline vence se o LightGBM não bater o critério).
 - Job diário gravando `prediction`; API respondendo; dashboard na Vercel mostrando a lista de próximas promoções,
   probabilidades e métricas do modelo; alertas funcionando.
+- `STOP`, `docs/ACTIONS.md`, `model_run`, `source_health` e a explicação por item funcionando no dashboard.
 - Extrator acima dos limites mínimos contra o conjunto de ouro; `prediction_log` ativo; firewall, backups e `gitleaks` verificados;
   contador de orçamento funcionando.
 - Todos os testes e o CI verdes, testes cruzados registrados, STATUS.md final com limitações conhecidas.
