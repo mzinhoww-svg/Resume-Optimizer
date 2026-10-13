@@ -52,6 +52,33 @@ Adicione agentes por coletor, de dados/QA e de testes quando acelerar a entrega.
   extrator por esquema e regex.
 - Checar robots.txt e termos de uso de cada fonte antes de qualquer coleta recorrente.
 
+## QUALIDADE DE DADOS E AVALIAÇÃO
+- **Glossário de evento** em `docs/glossario.md`, escrito antes do backfill: o que é campanha, renovação, prorrogação,
+  oferta segmentada (clube/público) e oferta relâmpago. Todos os agentes seguem o mesmo glossário; mudança exige decisão registrada.
+- **Conjunto de ouro** em `data/gold/`: 50 a 100 campanhas conferidas na fonte oficial ou pelo humano, imutável (só o
+  humano altera). Se o agente não conseguir montar o conjunto sozinho, monta uma amostra de 50 e marca como
+  `gold_provisional`, pedindo conferência ao humano ao fim da fase 2 sem bloquear o andamento.
+- **Avaliação do extrator separada da do modelo:** medir precisão e cobertura por campo (programa, tipo, bônus, datas)
+  contra o conjunto de ouro. Mínimo para treinar: ≥ 95% nos campos programa e tipo, erro de data ≤ 1 dia em ≥ 90% dos casos
+  e bônus exato em ≥ 90%. Abaixo disso, corrigir o extrator antes de avançar.
+- **Registro imutável de previsões:** tabela `prediction_log` só de inserção (timestamp, versão do modelo, par, tipo, janela,
+  probabilidade). Um job compara cada previsão com o que ocorreu e publica no dashboard a precisão real em produção,
+  separada da validação histórica. Nunca reescrever previsões passadas.
+
+## CICLO CURTO ATÉ RESULTADO VISÍVEL
+- Antes de completar a fase 2, entregar uma **fatia vertical mínima**: um coletor, a tabela `offer`, uma previsão de
+  baseline (hazard empírico) para Livelo → Smiles e uma página simples no dashboard. Serve para provar o caminho
+  ponta a ponta cedo; refinar depois. Se a fatia revelar que há dados insuficientes, o orquestrador aciona o portão de viabilidade.
+
+## SEGURANÇA E CUSTO (tarefas obrigatórias da fase 1 e 5)
+- **VPS:** firewall liberando só 22, 80 e 443; SSH somente por chave, sem senha; Postgres sem porta pública; Caddy com HTTPS;
+  API protegida por chave e limite de requisições; backups diários do Postgres com teste de restauração registrado.
+- **Segredos:** só em variáveis de ambiente; `.env` no `.gitignore`; `gitleaks` (ou equivalente) no CI bloqueando commit de chave.
+  Nunca imprimir chaves em logs, TASKS.md, STATUS.md ou PRs.
+- **Orçamento em código:** módulo `budget` que registra o gasto por provedor (OpenRouter, Tavily, Apify, outros) em tabela,
+  consulta o contador antes de cada chamada paga e **interrompe a chamada** ao atingir o teto do bloco de autorizações.
+  Resumo de gasto em STATUS.md a cada fase.
+
 ## FASES
 1. Setup: repo GitHub, Docker Compose local, schema aplicado, CI de testes.
 2. **Portão de viabilidade de dados** (obrigatório): backfill de Passageiro de Primeira, Melhores Cartões,
@@ -110,6 +137,8 @@ Ninguém espera aprovação humana entre tarefas ou fases. O orquestrador conduz
 - Modelo campeão × desafiante rodado e decidido (o baseline vence se o LightGBM não bater o critério).
 - Job diário gravando `prediction`; API respondendo; dashboard na Vercel mostrando a lista de próximas promoções,
   probabilidades e métricas do modelo; alertas funcionando.
+- Extrator acima dos limites mínimos contra o conjunto de ouro; `prediction_log` ativo; firewall, backups e `gitleaks` verificados;
+  contador de orçamento funcionando.
 - Todos os testes e o CI verdes, testes cruzados registrados, STATUS.md final com limitações conhecidas.
 Ao atingir isso, o orquestrador fecha os terminais, publica o relatório final e só então avisa o humano.
 Expandir para outros pares e tipos é pós-MVP.
