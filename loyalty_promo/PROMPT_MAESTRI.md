@@ -73,7 +73,47 @@ Dois blocos:
 TASKS.md (tarefa, responsável, terminal, status, aceite) e STATUS.md (fase, decisões, bloqueios, próximos passos)
 sempre atualizados. Fim de cada fase: resumo curto e seguir para a próxima.
 
-## PARE E PERGUNTE APENAS PARA
+## MODO AUTÔNOMO (execução ponta a ponta até o MVP)
+Ninguém espera aprovação humana entre tarefas ou fases. O orquestrador conduz este ciclo até o MVP estar pronto.
+
+**Ciclo por tarefa**
+1. Quem implementa entrega com testes próprios passando e registra em TASKS.md (`status=em_revisao`).
+2. **Teste cruzado obrigatório:** outro agente (nunca o autor) executa os testes, roda a entrega de ponta a ponta
+   com dados reais ou fixtures e tenta quebrá-la (entradas vazias, duplicadas, fonte fora do ar, datas conflitantes).
+   O planejador revisa vazamento temporal em tudo que toca features. Evidência = saída dos comandos, anexada ao TASKS.md.
+3. Passou nos dois: `status=concluida`. Falhou: segue o ciclo de problema abaixo.
+
+**Ciclo de problema**
+1. /superpowers:systematic-debugging para achar a causa raiz (não corrigir sintoma).
+2. Se a correção for óbvia e local, o autor corrige e volta ao passo 2 do ciclo anterior.
+3. Se envolver arquitetura, métrica, dados ou mais de um módulo: o planejador roda /superpowers:brainstorming com
+   2 a 4 opções, prós e contras, e grava em `docs/decisions/NNN-titulo.md`.
+4. O orquestrador decide com o planejador (conversa curta entre os dois, registrada no mesmo arquivo), atualiza o
+   plano e redistribui as tarefas. Ninguém espera o humano.
+5. Limite de tentativas: 3 correções para o mesmo problema. Na 4ª, o orquestrador escolhe uma saída: simplificar o
+   escopo, trocar de abordagem ou cortar o item do MVP, e registra o motivo. Nunca ficar em loop.
+
+**Definição de MVP (para parar)**
+- Coletor Livelo → Smiles com backfill ≥ 24 meses e listener em tempo real, gravando em Postgres, com `validated` calculado.
+- Modelo campeão × desafiante rodado e decidido (o baseline vence se o LightGBM não bater o critério).
+- Job diário gravando `prediction`; API respondendo; dashboard na Vercel mostrando a lista de próximas promoções,
+  probabilidades e métricas do modelo; alertas funcionando.
+- Todos os testes e o CI verdes, testes cruzados registrados, STATUS.md final com limitações conhecidas.
+Ao atingir isso, o orquestrador fecha os terminais, publica o relatório final e só então avisa o humano.
+Expandir para outros pares e tipos é pós-MVP.
+
+**Higiene**
+- Commits pequenos em branches, PR com descrição e evidência de teste. Merge só com CI verde e teste cruzado concluído.
+- Se ficar sem progresso por 2 ciclos completos, o orquestrador reduz o escopo em vez de insistir.
+- Se um provedor falhar (fonte fora do ar, API limitada), registra o bloqueio, segue com as demais tarefas e retoma depois.
+
+## AUTORIZAÇÕES PRÉVIAS (preencha antes de rodar; o que ficar em branco = perguntar)
+- Teto de gasto total (VPS, Vercel, OpenRouter): R$ ______ /mês. Dentro do teto, o orquestrador age sem perguntar.
+- Criar e usar a VPS LetsCloud existente / criar nova: ______
+- Deploy na VPS e na Vercel: autorizado ( ) sim  ( ) só após mostrar o plano
+- Push para o GitHub do projeto: autorizado ( ) sim
+
+## PARE E PERGUNTE APENAS PARA (o que as autorizações acima não cobrem)
 - Gasto novo: criar/redimensionar servidor na LetsCloud, plano pago da Vercel, créditos de API além do já contratado.
 - Credenciais que não estão na nota (login do Telegram com código SMS, chaves ausentes).
 - Apagar dados coletados ou reescrever histórico do git.
