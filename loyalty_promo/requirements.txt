@@ -1,0 +1,7 @@
+pandas
+numpy
+scikit-learn
+# opcionais por abordagem
+# lifelines            # Opção 2 (sobrevivência)
+# lightgbm             # Opção 1 em produção
+# telethon, playwright, beautifulsoup4, scrapy, psycopg[binary]  # coleta
